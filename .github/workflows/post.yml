@@ -2,12 +2,12 @@ name: Auto LinkedIn Post
 
 on:
   schedule:
-    # Post 1: Gen AI at 8:00 AM UTC
-    - cron: "0 8 * * *"
-    # Post 2: Databricks at 12:00 PM UTC
-    - cron: "0 12 * * *"
-    # Post 3: SQL Server at 4:00 PM UTC
-    - cron: "0 16 * * *"
+    # Post 1: Gen AI at 8:00 AM EST (1:00 PM UTC)
+    - cron: "0 13 * * *"
+    # Post 2: Databricks at 12:00 PM EST (5:00 PM UTC)
+    - cron: "0 17 * * *"
+    # Post 3: SQL Server at 4:00 PM EST (9:00 PM UTC)
+    - cron: "0 21 * * *"
 
   # Allow manual trigger from GitHub UI
   workflow_dispatch:
@@ -43,7 +43,7 @@ jobs:
     timeout-minutes: 10
     # Only run on the 8AM schedule trigger OR manual dispatch for gen_ai
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 8 * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 13 * * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.topic == 'gen_ai')
 
     steps:
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 12 * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 17 * * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.topic == 'databricks')
 
     steps:
@@ -123,7 +123,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: |
-      (github.event_name == 'schedule' && github.event.schedule == '0 16 * * *') ||
+      (github.event_name == 'schedule' && github.event.schedule == '0 21 * * *') ||
       (github.event_name == 'workflow_dispatch' && github.event.inputs.topic == 'sql_server')
 
     steps:
