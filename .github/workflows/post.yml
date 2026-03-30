@@ -1,0 +1,159 @@
+name: Auto LinkedIn Post
+
+on:
+  schedule:
+    # Post 1: Gen AI at 8:00 AM UTC
+    - cron: "0 8 * * *"
+    # Post 2: Databricks at 12:00 PM UTC
+    - cron: "0 12 * * *"
+    # Post 3: SQL Server at 4:00 PM UTC
+    - cron: "0 16 * * *"
+
+  # Allow manual trigger from GitHub UI
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (generate but don't publish)"
+        type: boolean
+        default: false
+      topic:
+        description: "Topic to post"
+        type: choice
+        options:
+          - gen_ai
+          - databricks
+          - sql_server
+        default: gen_ai
+      post_type:
+        description: "Override post type (leave blank for auto)"
+        type: choice
+        options:
+          - ""
+          - expert_challenge
+          - open_discussion
+          - tip_of_day
+          - myth_vs_reality
+          - series_deep_dive
+        default: ""
+
+jobs:
+  post-gen-ai:
+    name: Post Gen AI (8AM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Only run on the 8AM schedule trigger OR manual dispatch for gen_ai
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 8 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.topic == 'gen_ai')
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Restore DB
+        uses: actions/cache@v4
+        with:
+          path: posts.db
+          key: posts-db-${{ github.run_id }}
+          restore-keys: posts-db-
+
+      - name: Post Gen AI
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+        run: |
+          ARGS="--topic gen_ai --yes"
+          [ "${{ github.event.inputs.dry_run }}" = "true" ] && ARGS="--topic gen_ai --dry-run"
+          [ -n "${{ github.event.inputs.post_type }}" ] && ARGS="$ARGS --type ${{ github.event.inputs.post_type }}"
+          python main.py $ARGS
+
+      - name: Save DB
+        uses: actions/cache@v4
+        if: always()
+        with:
+          path: posts.db
+          key: posts-db-${{ github.run_id }}
+
+  post-databricks:
+    name: Post Databricks (12PM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 12 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.topic == 'databricks')
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Restore DB
+        uses: actions/cache@v4
+        with:
+          path: posts.db
+          key: posts-db-${{ github.run_id }}
+          restore-keys: posts-db-
+
+      - name: Post Databricks
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+        run: |
+          ARGS="--topic databricks --yes"
+          [ "${{ github.event.inputs.dry_run }}" = "true" ] && ARGS="--topic databricks --dry-run"
+          [ -n "${{ github.event.inputs.post_type }}" ] && ARGS="$ARGS --type ${{ github.event.inputs.post_type }}"
+          python main.py $ARGS
+
+      - name: Save DB
+        uses: actions/cache@v4
+        if: always()
+        with:
+          path: posts.db
+          key: posts-db-${{ github.run_id }}
+
+  post-sql-server:
+    name: Post SQL Server (4PM)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: |
+      (github.event_name == 'schedule' && github.event.schedule == '0 16 * * *') ||
+      (github.event_name == 'workflow_dispatch' && github.event.inputs.topic == 'sql_server')
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+
+      - name: Restore DB
+        uses: actions/cache@v4
+        with:
+          path: posts.db
+          key: posts-db-${{ github.run_id }}
+          restore-keys: posts-db-
+
+      - name: Post SQL Server
+        env:
+          LINKEDIN_ACCESS_TOKEN: ${{ secrets.LINKEDIN_ACCESS_TOKEN }}
+          LINKEDIN_PERSON_URN: ${{ secrets.LINKEDIN_PERSON_URN }}
+        run: |
+          ARGS="--topic sql_server --yes"
+          [ "${{ github.event.inputs.dry_run }}" = "true" ] && ARGS="--topic sql_server --dry-run"
+          [ -n "${{ github.event.inputs.post_type }}" ] && ARGS="$ARGS --type ${{ github.event.inputs.post_type }}"
+          python main.py $ARGS
+
+      - name: Save DB
+        uses: actions/cache@v4
+        if: always()
+        with:
+          path: posts.db
+          key: posts-db-${{ github.run_id }}
