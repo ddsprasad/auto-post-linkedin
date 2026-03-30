@@ -153,6 +153,10 @@ def post_to_linkedin(content: str, image_bytes: bytes | None = None) -> dict:
     person_urn = get_person_urn()
     token = os.environ["LINKEDIN_ACCESS_TOKEN"]
 
+    # LinkedIn has a 3000 char limit on commentary
+    if len(content) > 3000:
+        content = content[:2997] + "..."
+
     # Upload image if provided
     image_urn = None
     if image_bytes:

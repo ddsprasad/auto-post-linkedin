@@ -80,7 +80,9 @@ def generate_post(
         f"REQUIRED: The very first line must be exactly this format (no emojis, no extra symbols):\n"
         f"Post #{post_number} {topic['name']} - [short descriptive title for this post]\n\n"
         "Then leave a blank line and write the post body.\n"
-        "Write only the post content. No introductions or meta-commentary."
+        "Write only the post content. No introductions or meta-commentary.\n\n"
+        "CRITICAL: The ENTIRE post (including title, body, and hashtags) must be under 2800 characters total. "
+        "LinkedIn cuts off posts over 3000 characters. Keep it concise and complete."
     )
 
     post_content = anyio.run(_call_agent, user_prompt, system_prompt)
