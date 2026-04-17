@@ -76,9 +76,6 @@ def render_infographic(
     topic_display = topic_name.upper()
     d.text((PAD, 20), topic_display, fill="white", font=_font(28, bold=True))
 
-    post_label = f"Post #{post_number}"
-    d.text((IMG_W - 190, 22), post_label, fill="white", font=_font(26, bold=True))
-
     # ── Left accent bar ───────────────────────────────────
     d.rectangle([0, HEADER_H, 6, IMG_H - FOOTER_H], fill=dark_rgb)
 
